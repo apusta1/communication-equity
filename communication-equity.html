@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Communication Equity — Studi Kasus Reflektif</title>
+<style>
+  :root{
+    --ink:#1a2332;
+    --muted:#5a6a7e;
+    --bg:#f4f7fb;
+    --card:#ffffff;
+    --accent:#2f6fed;
+    --accent-soft:#e8f0ff;
+    --warn:#c2410c;
+    --warn-soft:#fff1e8;
+    --ok:#0f766e;
+    --ok-soft:#e6f6f3;
+    --line:#dbe3ee;
+    --radius:16px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.6;
+  }
+  header{
+    background:linear-gradient(135deg,#1a2332,#2f6fed);
+    color:#fff;
+    padding:48px 24px 40px;
+    text-align:center;
+  }
+  header h1{margin:0 0 8px;font-size:clamp(1.5rem,3vw,2.2rem);}
+  header p{margin:0 auto;max-width:680px;opacity:.9;font-size:.98rem;}
+  .badge{
+    display:inline-block;background:rgba(255,255,255,.16);
+    padding:4px 14px;border-radius:999px;font-size:.78rem;
+    letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px;
+  }
+  main{max-width:900px;margin:0 auto;padding:32px 20px 80px;}
+
+  .progress-wrap{
+    background:var(--card);border:1px solid var(--line);
+    border-radius:var(--radius);padding:16px 20px;margin-bottom:24px;
+    display:flex;align-items:center;gap:16px;
+    position:sticky;top:12px;z-index:10;
+    box-shadow:0 6px 20px rgba(26,35,50,.06);
+  }
+  .progress-track{flex:1;height:10px;background:#e8eef7;border-radius:999px;overflow:hidden;}
+  .progress-fill{height:100%;width:0;background:linear-gradient(90deg,#2f6fed,#22b8a0);transition:width .4s ease;}
+  .progress-label{font-size:.82rem;color:var(--muted);white-space:nowrap;font-weight:600;}
+
+  .card{
+    background:var(--card);border:1px solid var(--line);
+    border-radius:var(--radius);padding:26px 26px 22px;
+    margin-bottom:22px;box-shadow:0 4px 16px rgba(26,35,50,.04);
+  }
+  .card h2{margin:0 0 4px;font-size:1.15rem;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+  .card .sub{color:var(--muted);font-size:.88rem;margin:0 0 18px;}
+  .chip{
+    font-size:.7rem;font-weight:700;letter-spacing:.06em;
+    background:var(--accent-soft);color:var(--accent);
+    padding:3px 10px;border-radius:999px;text-transform:uppercase;
+  }
+
+  /* Case study box — diperpanjang, nyaman dibaca */
+  .case{
+    background:var(--bg);border-left:4px solid var(--accent);
+    border-radius:0 10px 10px 0;padding:18px 20px;margin-bottom:20px;
+    font-size:.95rem;
+  }
+  .case p{margin:0 0 12px;}
+  .case p:last-child{margin-bottom:0;}
+  .case strong{color:var(--accent);}
+  .case .char{font-weight:700;color:var(--ink);}
+  .case .question{
+    display:block;margin-top:14px;padding-top:12px;
+    border-top:1px dashed #c9d6ea;font-weight:700;color:var(--ink);
+  }
+
+  .options{display:grid;gap:10px;}
+  .option{
+    display:flex;gap:12px;align-items:flex-start;
+    border:1.5px solid var(--line);border-radius:12px;
+    padding:12px 16px;cursor:pointer;background:#fff;
+    transition:border-color .2s,background .2s;
+    font-size:.93rem;
+  }
+  .option:hover{border-color:#b9cdf3;background:#fafcff;}
+  .option input{margin-top:4px;accent-color:var(--accent);flex-shrink:0;}
+  .option.selected{border-color:var(--accent);background:var(--accent-soft);}
+
+  .feedback{
+    margin-top:16px;padding:14px 16px;border-radius:12px;
+    font-size:.9rem;display:none;
+  }
+  .feedback.show{display:block;}
+  .feedback.good{background:var(--ok-soft);border-left:4px solid var(--ok);}
+  .feedback.bad{background:var(--warn-soft);border-left:4px solid var(--warn);}
+  .feedback strong{display:block;margin-bottom:4px;}
+
+  textarea{
+    width:100%;min-height:120px;border:1.5px solid var(--line);
+    border-radius:12px;padding:14px;font-family:inherit;font-size:.93rem;
+    resize:vertical;background:#fff;color:var(--ink);
+  }
+  textarea:focus{outline:2px solid var(--accent);border-color:transparent;}
+  .word-count{font-size:.78rem;color:var(--muted);text-align:right;margin-top:4px;}
+
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--accent);color:#fff;border:none;
+    padding:11px 22px;border-radius:10px;font-size:.92rem;
+    font-weight:600;cursor:pointer;transition:transform .15s,opacity .2s;
+  }
+  .btn:hover{transform:translateY(-1px);}
+  .btn:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+  .btn.ghost{background:#fff;color:var(--accent);border:1.5px solid var(--accent);}
+  .btn-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px;align-items:center;}
+
+  .score-panel{
+    background:linear-gradient(135deg,#1a2332,#2f6fed);color:#fff;
+    border-radius:var(--radius);padding:28px;text-align:center;
+    display:none;margin-bottom:22px;
+  }
+  .score-panel.show{display:block;}
+  .score-big{font-size:3rem;font-weight:800;line-height:1;margin:6px 0;}
+  .score-panel p{opacity:.88;margin:6px 0 0;font-size:.92rem;}
+
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media(max-width:640px){.grid-2{grid-template-columns:1fr;}}
+  .pillar{
+    border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:#fff;
+  }
+  .pillar h4{margin:0 0 6px;font-size:.9rem;color:var(--accent);}
+  .pillar p{margin:0;font-size:.85rem;color:var(--muted);}
+
+  .hidden{display:none!important;}
+  footer{text-align:center;color:var(--muted);font-size:.8rem;padding:24px;}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="badge">Aktivitas Pembelajaran</span>
+  <h1>Communication Equity</h1>
+  <p>Studi kasus reflektif untuk menganalisis ketidaksetaraan komunikasi dalam konteks akademik &amp; organisasi, serta merancang solusi yang inklusif.</p>
+</header>
+
+<main>
+
+  <div class="progress-wrap" id="progressWrap" style="display:none">
+    <span class="progress-label" id="progressLabel">0 / 5 kasus</span>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <!-- INTRO -->
+  <section class="card" id="introCard">
+    <h2>📘 Petunjuk Aktivitas</h2>
+    <p class="sub">Durasi ±30–40 menit · Individu atau berpasangan</p>
+    <p style="font-size:.94rem;margin-top:0">
+      <strong>Communication equity</strong> berarti setiap orang memiliki akses yang setara untuk
+      menyampaikan gagasan, didengar, dan memahami informasi — terlepas dari latar belakang bahasa,
+      status, gender, disabilitas, atau posisi mereka.
+    </p>
+    <p style="font-size:.94rem">
+      Kamu akan membaca <strong>5 studi kasus</strong> yang lebih panjang dan kontekstual. Untuk setiap kasus:
+    </p>
+    <ol style="font-size:.93rem;margin:0 0 8px;padding-left:22px">
+      <li>Baca narasi kasus secara menyeluruh (2 paragraf).</li>
+      <li>Pilih <em>satu</em> tindakan yang paling mencerminkan kesetaraan komunikasi.</li>
+      <li>Baca umpan balik yang muncul.</li>
+      <li>Di akhir, tuliskan refleksi singkat dan lihat ringkasan skormu.</li>
+    </ol>
+    <div class="btn-row">
+      <button class="btn" onclick="startActivity()">Mulai Aktivitas →</button>
+    </div>
+  </section>
+
+  <div id="scenarioContainer"></div>
+
+  <!-- REFLECTION -->
+  <section class="card hidden" id="reflectionCard">
+    <h2>✍️ Refleksi Akhir</h2>
+    <p class="sub">Tuliskan pemahamanmu — minimal 25 kata.</p>
+    <p style="font-size:.93rem;margin-top:0">
+      Pilih <strong>satu kasus</strong> yang paling membekas bagimu. Jelaskan mengapa kasus itu penting,
+      dan sebutkan <strong>satu kebiasaan komunikasi</strong> yang ingin kamu ubah setelah aktivitas ini.
+    </p>
+    <textarea id="reflectionInput" placeholder="Contoh: Kasus tentang aksen membuat saya sadar bahwa saya pernah menilai cara bicara teman. Saya ingin lebih fokus pada isi gagasan, karena..."></textarea>
+    <div class="word-count" id="wordCount">0 kata</div>
+    <div class="btn-row">
+      <button class="btn" id="submitReflection" onclick="submitReflection()" disabled>Kirim Refleksi &amp; Lihat Hasil</button>
+    </div>
+  </section>
+
+  <!-- SCORE PANEL -->
+  <section class="score-panel" id="scorePanel">
+    <div style="font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;opacity:.8">Skor Pemahaman</div>
+    <div class="score-big" id="scoreBig">0/5</div>
+    <p id="scoreMsg"></p>
+  </section>
+
+  <!-- SUMMARY -->
+  <section class="card hidden" id="summaryCard">
+    <h2>🧭 Rangkuman: Pilar Communication Equity</h2>
+    <p class="sub">Gunakan kerangka ini untuk mengevaluasi komunikasi di sekitarmu.</p>
+    <div class="grid-2">
+      <div class="pillar"><h4>1. Akses</h4><p>Semua orang mendapat informasi yang sama, dalam format yang dapat diakses (teks, audio, bahasa isyarat, terjemahan).</p></div>
+      <div class="pillar"><h4>2. Partisipasi</h4><p>Ruang bicara dibagi adil; yang pendiam tidak terlewat, yang dominan tidak menguasai.</p></div>
+      <div class="pillar"><h4>3. Pengakuan</h4><p>Ide dinilai berdasarkan substansi, bukan status, aksen, gender, atau jabatan.</p></div>
+      <div class="pillar"><h4>4. Akuntabilitas</h4><p>Ketika terjadi ketidaksetaraan, ada mekanisme untuk memperbaiki — bukan dibiarkan.</p></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn ghost" onclick="location.reload()">🔄 Ulangi Aktivitas</button>
+    </div>
+  </section>
+
+</main>
+
+<footer>Communication Equity Learning Activity · Studi Kasus · Dapat digunakan untuk kelas Komunikasi, Psikologi, atau Kepemimpinan</footer>
+
+<script>
+/* ============ DATA STUDI KASUS (diperpanjang) ============ */
+const scenarios = [
+  {
+    title: "Diskusi Kelompok di Kelas Metodologi",
+    sub: "Kasus 1 dari 5 · Partisipasi",
+    paragraphs: [
+      `Di kelas Metodologi Penelitian, Bu Rani membagi mahasiswa ke dalam kelompok diskusi berisi lima orang. Kelompok 3 terdiri dari <span class="char">Dinda</span> dan <span class="char">Raka</span> — dua mahasiswa yang percaya diri dan terbiasa menjadi juru bicara — serta <span class="char">Mei</span>, mahasiswa internasional yang baru enam bulan di Indonesia, <span class="char">Yusuf</span> yang pemalu, dan <span class="char">Sari</span> yang sering izin karena bekerja paruh waktu. Dalam dua pertemuan, Dinda dan Raka mendominasi sekitar 80% waktu bicara; mereka bahkan sering saling memotong. Mei beberapa kali membuka mulut, tetapi urung karena takut bahasanya dinilai; Yusuf hanya mengangguk; Sari belum sempat membaca materi.`,
+      `Saat presentasi kelompok, Dinda dan Raka tampil meyakinkan, sementara Mei, Yusuf, dan Sari hampir tidak berkontribusi. Bu Rani mencatat bahwa nilai kelompok tinggi, tetapi ia gelisah: apakah hasil ini mencerminkan kemampuan seluruh anggota, atau justru menutupi ketidaksetaraan partisipasi? Ia juga menyadari bahwa "membiarkan kelompok mengatur diri sendiri" ternyata tidak netral — ia justru memberi keuntungan pada mereka yang sudah memiliki modal kepercayaan diri dan kelancaran bahasa.`
+    ],
+    question: "Sebagai fasilitator, apa tindakan paling setara yang seharusnya diambil?",
+    options: [
+      { t: "Membiarkan saja — itu tanggung jawab masing-masing untuk berbicara.", correct:false,
+        fb:"Membiarkan berarti ketidaksetaraan terus berlanjut. Kesetaraan komunikasi menuntut tindakan aktif untuk membuka ruang, bukan sekadar netral." },
+      { t: "Membagi waktu bicara secara bergilir (round-robin / think-pair-share) dan menanyakan pendapat anggota yang belum berbicara.", correct:true,
+        fb:"Tepat! Struktur partisipasi memastikan suara yang sering terpinggirkan terdengar tanpa mempermalukan siapa pun. Ini juga membantu Dinda dan Raka belajar mendengar." },
+      { t: "Menyarankan Mei mengikuti kursus bahasa dulu sebelum ikut diskusi.", correct:false,
+        fb:"Ini memindahkan beban ke individu dan justru mengucilkan. Kesetaraan komunikasi berarti menyesuaikan lingkungan, bukan menuntut individu berubah sendirian." },
+      { t: "Hanya mendengarkan Dinda dan Raka karena idenya paling jelas.", correct:false,
+        fb:"Ini bias status/vokalitas. Ide terbaik belum tentu datang dari yang paling lantang — pengakuan harus berbasis substansi." }
+    ]
+  },
+  {
+    title: "Rapat Organisasi & Akses Informasi",
+    sub: "Kasus 2 dari 5 · Akses",
+    paragraphs: [
+      `BEM Fakultas mengadakan rapat koordinasi program kerja secara daring pada pukul 19.30, karena banyak anggota yang kuliah pagi dan bekerja siang. Salah satu anggota, <span class="char">Nadia</span>, adalah mahasiswa tunarungu yang mengandalkan teks dan bahasa isyarat. Panitia mengirim tautan rapat dan agenda dalam bentuk PDF, tetapi tidak menyediakan live caption maupun transkrip. Selama rapat, Nadia hanya bisa membaca gerak bibir yang terputus-putus di layar kecil, dan sebagian besar diskusi berlangsung cepat tanpa jeda.`,
+      `Setelah rapat, Nadia baru menerima ringkasan keputusan — itupun tidak lengkap, karena beberapa keputusan penting diambil secara lisan di menit-menit akhir. Ia merasa dirinya "hadir secara fisik, tetapi tidak benar-benar hadir dalam pengambilan keputusan". Ketua BEM berdalih bahwa rapat malam adalah satu-satunya waktu yang memungkinkan, dan bahwa ringkasan sudah dikirim. Namun Nadia menyadari: informasi yang datang terlambat bukanlah akses yang setara — ia kehilangan kesempatan untuk memengaruhi keputusan saat keputusan itu masih bisa dibentuk.`
+    ],
+    question: "Apa langkah paling setara yang seharusnya diambil penyelenggara?",
+    options: [
+      { t: "Mengirim ringkasan tertulis setelah rapat selesai.", correct:false,
+        fb:"Ringkasan setelah rapat membantu, tetapi anggota tersebut tetap tidak bisa berpartisipasi saat keputusan dibuat — aksesnya terlambat." },
+      { t: "Menyediakan live caption/transkrip dan materi tertulis sebelum rapat.", correct:true,
+        fb:"Tepat! Akses setara berarti informasi tersedia <em>pada saat yang sama</em> dan dalam format yang dapat digunakan semua orang (live caption, transkrip, materi awal)." },
+      { t: "Meminta Nadia merekam dan mentranskrip sendiri.", correct:false,
+        fb:"Ini membebani individu secara tidak adil. Akomodasi akses adalah tanggung jawab penyelenggara, bukan beban peserta." },
+      { t: "Mengganti rapat menjadi pesan teks saja agar semua bisa baca.", correct:false,
+        fb:"Solusi ini mengabaikan kebutuhan lain (mis. anggota tunanetra atau yang lebih mudah memahami audio). Kesetaraan = banyak format, bukan satu format untuk semua." }
+    ]
+  },
+  {
+    title: "Umpan Balik & Aksen",
+    sub: "Kasus 3 dari 5 · Pengakuan",
+    paragraphs: [
+      `Di sebuah seminar, <span class="char">Pak Hendra</span> — dosen senior yang dihormati — memberi umpan balik atas presentasi mahasiswa. Ketika giliran <span class="char">Ayu</span>, mahasiswa asal Nusa Tenggara Timur, Pak Hendra berkata di depan kelas: "Isinya cukup baik, tetapi cara bicaramu kurang profesional, aksennya masih kental. Coba dilatih lagi ya." Ayu tersenyum kaku; isi presentasinya sebenarnya paling kuat di kelas itu, dengan data lapangan yang ia kumpulkan sendiri selama dua bulan.`,
+      `Beberapa mahasiswa lain tampak tidak nyaman, tetapi tidak ada yang berbicara. Ayu kemudian menjadi lebih diam di kelas, dan mulai berlatih mengurangi aksennya di depan cermin — bukan karena ia ingin, tetapi karena ia merasa harus "layak" didengar. Padahal, persoalan sesungguhnya bukan pada aksen Ayu, melainkan pada kriteria penilaian yang diam-diam menganggap satu cara bicara lebih "profesional" daripada cara bicara lainnya. Ketidaksetaraan komunikasi di sini bekerja halus: dibungkus sebagai nasihat yang tampak peduli.`
+    ],
+    question: "Apa respons paling setara yang seharusnya muncul?",
+    options: [
+      { t: "Menerima saja karena dosen lebih berpengalaman.", correct:false,
+        fb:"Hierarki bukan alasan untuk membenarkan bias. Kesetaraan komunikasi menuntut penilaian berbasis substansi, bukan aksen atau latar belakang." },
+      { t: "Meminta dosen menilai berdasarkan isi jawaban, dan mengingatkan bahwa aksen bukan indikator kompetensi.", correct:true,
+        fb:"Tepat! Ini adalah akuntabilitas: menantang bias secara sopan dan mengarahkan penilaian kembali ke substansi ide." },
+      { t: "Menyarankan Ayu kursus aksen agar diterima.", correct:false,
+        fb:"Ini memperkuat stigma bahwa satu cara bicara lebih 'benar'. Kesetaraan komunikasi menghargai variasi bahasa, bukan menghapusnya." },
+      { t: "Diam dan melaporkannya ke media sosial.", correct:false,
+        fb:"Membicarakan di luar forum tidak menyelesaikan akar masalah dan bisa memperburuk situasi. Akuntabilitas yang sehat terjadi melalui saluran yang tepat." }
+    ]
+  },
+  {
+    title: "Rekrutmen & 'Cultural Fit'",
+    sub: "Kasus 4 dari 5 · Akses & Pengakuan",
+    paragraphs: [
+      `Sebuah tim startup mahasiswa membuka rekrutmen untuk posisi analis data. Dari 40 pelamar, tersisa tiga finalis. Salah satunya, <span class="char">Bima</span>, memiliki portofolio paling kuat: proyeknya akurat, dokumentasinya rapi, dan ia menjelaskan dengan tenang dan runtut. Namun saat diskusi tim penilai, seorang anggota berkata: "Bima kompeten, tapi kayaknya kurang 'cultural fit' deh. Dia pendiam, nggak terlalu ekspresif, beda sama tim kita yang energik." Anggota lain mengangguk; keputusan pun condong ke kandidat lain yang lebih ramai, meski portofolionya lebih tipis.`,
+      `Ketua tim kemudian merenung: apa sebenarnya yang dimaksud dengan "cultural fit"? Jika yang dimaksud adalah gaya komunikasi yang mirip dengan tim saat ini, maka kriteria itu diam-diam menyaring orang berdasarkan kesamaan, bukan kompetensi. Padahal, tim yang hanya berisi orang dengan gaya komunikasi serupa cenderung rentan terhadap groupthink dan melewatkan perspektif berbeda. Bima tidak "kurang cocok" — ia hanya berbeda, dan perbedaan itulah yang justru bisa memperkaya tim jika lingkungannya mau menyesuaikan diri.`
+    ],
+    question: "Apa tindakan paling setara yang seharusnya diambil tim penilai?",
+    options: [
+      { t: "Menerima keputusan karena 'cultural fit' penting untuk tim.", correct:false,
+        fb:"'Cultural fit' sering menjadi kedok bias terhadap gaya komunikasi yang berbeda. Kesetaraan menuntut kriteria berbasis kompetensi, bukan kesamaan gaya." },
+      { t: "Meninjau ulang kriteria seleksi agar berbasis kompetensi dan gaya komunikasi yang beragam tetap diterima.", correct:true,
+        fb:"Tepat! Kriteria harus transparan dan berbasis kompetensi. Gaya komunikasi yang tenang atau berbeda bukan defisit — keberagaman justru memperkaya tim." },
+      { t: "Meminta Bima berpura-pura lebih ekstrovert saat wawancara.", correct:false,
+        fb:"Ini menuntut individu menyembunyikan identitasnya. Kesetaraan berarti lingkungan menyesuaikan, bukan individu dipaksa berakting." },
+      { t: "Mengabaikan masalah karena satu kandidat tidak signifikan.", correct:false,
+        fb:"Satu keputusan bias menormalkan pola. Kesetaraan komunikasi menuntut konsistensi di setiap proses." }
+    ]
+  },
+  {
+    title: "Ruang Aman untuk Bertanya",
+    sub: "Kasus 5 dari 5 · Partisipasi & Akuntabilitas",
+    paragraphs: [
+      `Di kelas Statistik, <span class="char">Bu Lestari</span> dikenal tegas dan cepat. Setiap kali mahasiswa bertanya, ia sering menjawab dengan "Itu kan sudah dijelaskan di slide," atau "Masa begitu saja nggak paham?" Kelas pun tertawa kecil, dan mahasiswa yang bertanya biasanya tersipu. Dalam beberapa minggu, jumlah pertanyaan di kelas turun drastis. Namun nilai ujian juga turun — banyak mahasiswa sebenarnya belum paham konsep dasar, tetapi memilih diam daripada terlihat "bodoh" di depan teman-temannya.`,
+      `Seorang mahasiswa, <span class="char">Rian</span>, memberanikan diri menemui Bu Lestari setelah kelas. Ia menjelaskan bahwa banyak teman sebenarnya ingin bertanya, tetapi takut ditertawakan. Bu Lestari terkejut; ia mengira kelasnya sudah "terbiasa" dengan gaya belajarnya. Ia mulai menyadari bahwa tawanya kecil di kelas — yang tampak sepele — telah menjadi hambatan struktural yang membuat mahasiswa merasa tidak aman untuk mengakui ketidaktahuan. Padahal, bertanya adalah bagian sah dari belajar, dan kelas yang sehat justru harus memungkinkan pertanyaan "bodoh" muncul tanpa rasa malu.`
+    ],
+    question: "Apa solusi paling setara yang dapat diterapkan Bu Lestari?",
+    options: [
+      { t: "Menyediakan kanal pertanyaan anonim dan menetapkan norma kelas bahwa semua pertanyaan dihargai.", correct:true,
+        fb:"Tepat! Kanal anonim menurunkan hambatan sosial, dan norma eksplisit menciptakan akuntabilitas kolektif agar tidak ada yang dipermalukan." },
+      { t: "Menyuruh mahasiswa membaca ulang materi agar tidak perlu bertanya.", correct:false,
+        fb:"Ini mengabaikan fungsi bertanya sebagai bagian belajar. Menyalahkan individu atas kebingungan bukan kesetaraan." },
+      { t: "Hanya menjawab pertanyaan yang dianggap 'berbobot' oleh dosen.", correct:false,
+        fb:"Ini menciptakan hierarki pertanyaan dan membuat yang paling butuh bantuan justru diam. Semua pertanyaan layak dihargai." },
+      { t: "Membiarkan budaya itu terbentuk sendiri sebagai 'seleksi alami'.", correct:false,
+        fb:"Budaya yang dibiarkan cenderung menguntungkan yang sudah percaya diri. Kesetaraan komunikasi butuh desain dan akuntabilitas." }
+    ]
+  }
+];
+
+/* ============ STATE ============ */
+let current = 0;
+let score = 0;
+let answered = new Array(scenarios.length).fill(false);
+
+const container = document.getElementById('scenarioContainer');
+const progressFill = document.getElementById('progressFill');
+const progressLabel = document.getElementById('progressLabel');
+
+function startActivity(){
+  document.getElementById('introCard').classList.add('hidden');
+  document.getElementById('progressWrap').style.display = 'flex';
+  renderScenario(0);
+  updateProgress();
+}
+
+function renderScenario(index){
+  if(index >= scenarios.length){
+    showReflection();
+    return;
+  }
+  const s = scenarios[index];
+  const isAnswered = answered[index];
+
+  const card = document.createElement('section');
+  card.className = 'card';
+  card.id = 'card-' + index;
+  card.innerHTML = `
+    <h2><span class="chip">${s.sub.split('·')[1].trim()}</span> ${s.title}</h2>
+    <p class="sub">${s.sub}</p>
+    <div class="case">
+      ${s.paragraphs.map(p=>`<p>${p}</p>`).join('')}
+      <span class="question">❓ ${s.question}</span>
+    </div>
+    <div class="options" id="opts-${index}">
+      ${s.options.map((o,i)=>`
+        <label class="option" data-idx="${i}">
+          <input type="radio" name="q${index}" value="${i}" ${isAnswered?'disabled':''}>
+          <span>${o.t}</span>
+        </label>
+      `).join('')}
+    </div>
+    <div class="feedback" id="fb-${index}"></div>
+    <div class="btn-row">
+      <button class="btn" id="next-${index}" onclick="nextScenario()" style="display:none">Lanjut →</button>
+    </div>
+  `;
+  container.appendChild(card);
+
+  card.querySelectorAll('.option').forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      if(answered[index]) return;
+      const val = parseInt(opt.dataset.idx);
+      selectOption(index, val);
+    });
+  });
+
+  if(isAnswered){
+    // restore visual state jika dirender ulang
+    const selectedVal = card.dataset.selected;
+    if(selectedVal !== undefined) applyAnsweredVisual(index, parseInt(selectedVal));
+  }
+}
+
+function selectOption(qIndex, optIndex){
+  if(answered[qIndex]) return;
+  answered[qIndex] = true;
+  const card = document.getElementById('card-' + qIndex);
+  card.dataset.selected = optIndex;
+  applyAnsweredVisual(qIndex, optIndex);
+  updateProgress();
+}
+
+function applyAnsweredVisual(qIndex, optIndex){
+  const s = scenarios[qIndex];
+  const chosen = s.options[optIndex];
+  const card = document.getElementById('card-' + qIndex);
+  const opts = card.querySelectorAll('.option');
+  const fb = document.getElementById('fb-' + qIndex);
+
+  opts.forEach((o,i)=>{
+    o.querySelector('input').disabled = true;
+    if(i === optIndex) o.classList.add('selected');
+  });
+
+  if(chosen.correct){
+    score++;
+    fb.className = 'feedback show good';
+    fb.innerHTML = '<strong>✅ Tepat!</strong>' + chosen.fb;
+  } else {
+    fb.className = 'feedback show bad';
+    const correctIdx = s.options.findIndex(o=>o.correct);
+    fb.innerHTML = '<strong>⚠️ Belum tepat.</strong>' + chosen.fb +
+      '<br><br><em>Jawaban paling setara: </em>' + s.options[correctIdx].t;
+  }
+
+  document.getElementById('next-' + qIndex).style.display = 'inline-flex';
+  updateProgress();
+}
+
+function nextScenario(){
+  const nextIndex = answered.findIndex(a=>!a);
+  if(nextIndex === -1){
+    showReflection();
+  } else {
+    if(!document.getElementById('card-' + nextIndex)){
+      renderScenario(nextIndex);
+    }
+    document.getElementById('card-' + nextIndex).scrollIntoView({behavior:'smooth', block:'start'});
+  }
+  updateProgress();
+}
+
+function updateProgress(){
+  const done = answered.filter(a=>a).length;
+  const pct = (done / scenarios.length) * 100;
+  progressFill.style.width = pct + '%';
+  progressLabel.textContent = `${done} / ${scenarios.length} kasus`;
+}
+
+function showReflection(){
+  document.getElementById('reflectionCard').classList.remove('hidden');
+  document.getElementById('reflectionCard').scrollIntoView({behavior:'smooth'});
+  progressLabel.textContent = 'Selesai — tulis refleksi';
+}
+
+const reflectionInput = document.getElementById('reflectionInput');
+const wordCountEl = document.getElementById('wordCount');
+const submitBtn = document.getElementById('submitReflection');
+
+reflectionInput.addEventListener('input', ()=>{
+  const words = reflectionInput.value.trim().split(/\s+/).filter(Boolean);
+  wordCountEl.textContent = words.length + ' kata';
+  submitBtn.disabled = words.length < 25;
+});
+
+function submitReflection(){
+  document.getElementById('reflectionCard').classList.add('hidden');
+  showScore();
+}
+
+function showScore(){
+  const panel = document.getElementById('scorePanel');
+  panel.classList.add('show');
+  document.getElementById('scoreBig').textContent = `${score}/${scenarios.length}`;
+
+  let msg = '';
+  if(score === 5) msg = 'Luar biasa! Kamu memahami semua dimensi kesetaraan komunikasi.';
+  else if(score >= 3) msg = 'Bagus! Pemahamanmu kuat, tinggal perkuat beberapa area.';
+  else msg = 'Awal yang baik. Tinjau kembali pilar akses, partisipasi, pengakuan, dan akuntabilitas.';
+
+  document.getElementById('scoreMsg').textContent = msg;
+
+  document.getElementById('summaryCard').classList.remove('hidden');
+  panel.scrollIntoView({behavior:'smooth', block:'start'});
+}
+</script>
+</body>
+</html>
